@@ -1,5 +1,8 @@
 package com.ktriasia.contractmanager.model.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -21,8 +24,10 @@ import java.io.Serializable;
  * @version 1.0.0
  */
 @Data
+@TableName("clause")
 public class Clause implements Serializable {
     /** 条款唯一标识 */
+    @TableId(type = IdType.AUTO)
     Integer clauseId;
     /** 条款类别，枚举类型，使用字符串存储 */
     @Enumerated(EnumType.STRING)

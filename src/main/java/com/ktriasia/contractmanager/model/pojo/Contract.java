@@ -1,5 +1,8 @@
 package com.ktriasia.contractmanager.model.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,8 +23,10 @@ import java.util.List;
  * @version 1.0.0
  */
 @Data
+@TableName("contract")
 public class Contract implements Serializable {
     /** 合同唯一标识 */
+    @TableId(type = IdType.AUTO)
     Integer contractId;
     /** 合同名称 */
     String contractName;
