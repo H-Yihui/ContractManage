@@ -25,7 +25,7 @@ import java.util.List;
 @Data
 public class ContractElement {
     /** 元素唯一标识 */
-    BigInteger elementId;
+    Integer elementId;
     /** 所属合同ID */
     Integer contractId;
     /** 元素类型，枚举类型，使用字符串存储 */

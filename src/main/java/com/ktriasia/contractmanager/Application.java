@@ -1,5 +1,6 @@
 package com.ktriasia.contractmanager;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2025-9-16
  */
 @SpringBootApplication
+@MapperScan("com.ktriasia.contractmanager.model.mapper")
 public class Application {
     SpringApplication springApplication=new SpringApplication();
     public static void main(String[] args) {
