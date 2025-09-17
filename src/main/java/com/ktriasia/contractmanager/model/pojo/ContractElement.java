@@ -1,11 +1,14 @@
 package com.ktriasia.contractmanager.model.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.ktriasia.contractmanager.model.enums.ElementType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -25,6 +28,7 @@ import java.util.List;
 @Data
 public class ContractElement {
     /** 元素唯一标识 */
+    @TableId(type= IdType.AUTO)
     Integer elementId;
     /** 所属合同ID */
     Integer contractId;

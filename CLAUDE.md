@@ -24,10 +24,16 @@ The project follows a standard Spring Boot layered architecture:
 
 * `com.ktriasia.contractmanager.Application` - Main application entry point with @SpringBootApplication annotation
 * `com.ktriasia.contractmanager.config` - Configuration classes
-* `com.ktriasia.contractmanager.controller` - REST controllers (currently empty)
+* `com.ktriasia.contractmanager.controller` - REST controllers for handling HTTP requests
+  * `ClauseController` - Provides endpoints for managing clauses (get all clauses, get by title, get by category, get all categories)
+  * `ContractController` - Provides endpoints for managing contracts (create, delete, get elements, get clause elements)
+  * `ContractElementController` - Provides endpoints for managing contract elements (create, update, delete)
 * `com.ktriasia.contractmanager.model.pojo` - Data models (POJOs) with Lombok @Data annotation
 * `com.ktriasia.contractmanager.model.mapper` - MyBatis mapper interfaces
-* `com.ktriasia.contractmanager.service` - Service layer (currently empty)
+* `com.ktriasia.contractmanager.service` - Service layer for business logic
+  * `ClauseService` - Business logic for clause management
+  * `ContractService` - Business logic for contract management
+  * `ContractElementService` - Business logic for contract element management
 
 ## Data Models
 
@@ -35,6 +41,8 @@ Core data models include:
 * `Contract` - Represents a contract with properties like contractId, contractName, createdAt, and updatedAt
 * `Clause` - Represents a clause within a contract
 * `ContractElement` - Represents elements within a contract
+* `ClauseCategory` - Enum representing categories of clauses
+* `ElementType` - Enum representing types of contract elements (CLAUSE, HEADER, PARAGRAPH)
 
 These models are mapped to database tables using MyBatis Plus annotations.
 

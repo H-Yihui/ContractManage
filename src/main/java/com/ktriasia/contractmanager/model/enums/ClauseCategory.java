@@ -24,7 +24,7 @@ package com.ktriasia.contractmanager.model.enums;
  *   <li>{@link #OTHERS} 其他条款</li>
  * </ul>
  * @author Ktriasia
- * @since 2025-9-16
+ * @since 2025-09-16
  * @version 1.0.0
  */
 public enum ClauseCategory {

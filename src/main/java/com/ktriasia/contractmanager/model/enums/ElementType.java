@@ -9,7 +9,7 @@ package com.ktriasia.contractmanager.model.enums;
  *     <li>{@link #PARAGRAPH} 文本段落</li>
  * </ul>
  * @author Ktriasia
- * @since 2025-9-16
+ * @since 2025-09-16
  * @version 1.0.0
  */
 public enum ElementType {
