@@ -1,6 +1,7 @@
 package com.ktriasia.contractmanager.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import com.ktriasia.contractmanager.model.pojo.Clause;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +21,20 @@ public interface ClauseService extends IService<Clause> {
      * 获取所有条款
      * @return 所有条款的响应实体
      */
-    ResponseEntity<Object> getAllClauses();
+    ResponseEntity<Result<Object>> getAllClauses();
 
-    ResponseEntity<Object> getClausesByTitle(String title);
+    ResponseEntity<Result<Object>> getClausesByTitle(String title);
 
     /**
      * 根据分类获取条款
      * @param category 条款分类
      * @return 匹配条款的响应实体
      */
-    ResponseEntity<Object> getClausesByCategory(String category);
+    ResponseEntity<Result<Object>> getClausesByCategory(String category);
 
     /**
      * 获取所有条款分类
      * @return 所有条款分类的响应实体
      */
-    ResponseEntity<Object> getAllCategories();
+    ResponseEntity<Result<Object>> getAllCategories();
 }

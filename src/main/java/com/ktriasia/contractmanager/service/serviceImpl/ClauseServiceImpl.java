@@ -2,6 +2,8 @@ package com.ktriasia.contractmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ktriasia.contractmanager.model.dto.ClauseDTO;
+import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import com.ktriasia.contractmanager.model.mapper.ClauseMapper;
 import com.ktriasia.contractmanager.model.pojo.Clause;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 条款的服务层
@@ -34,9 +37,12 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      * @return 所有条款的响应实体
      */
     @Override
-    public ResponseEntity<Object> getAllClauses() {
+    public ResponseEntity<Result<Object>> getAllClauses() {
         List<Clause> clauses = clauseMapper.selectList(new QueryWrapper<>());
-        return ResponseEntity.ok(clauses);
+        List<ClauseDTO> clauseDTOs = clauses.stream()
+                .map(ClauseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Result.success(clauseDTOs));
     }
 
     /**
@@ -47,11 +53,14 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      * @return 匹配条款的响应实体
      */
     @Override
-    public ResponseEntity<Object> getClausesByTitle(String title) {
+    public ResponseEntity<Result<Object>> getClausesByTitle(String title) {
         QueryWrapper<Clause> clauseQueryWrapper = new QueryWrapper<>();
         clauseQueryWrapper.like("title", title);
         List<Clause> clauses = clauseMapper.selectList(clauseQueryWrapper);
-        return ResponseEntity.ok(clauses);
+        List<ClauseDTO> clauseDTOs = clauses.stream()
+                .map(ClauseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Result.success(clauseDTOs));
     }
 
     /**
@@ -62,11 +71,14 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      * @return 匹配条款的响应实体
      */
     @Override
-    public ResponseEntity<Object> getClausesByCategory(String category) {
+    public ResponseEntity<Result<Object>> getClausesByCategory(String category) {
         QueryWrapper<Clause> clauseQueryWrapper = new QueryWrapper<>();
         clauseQueryWrapper.eq("clause_category", category);
         List<Clause> clauses = clauseMapper.selectList(clauseQueryWrapper);
-        return ResponseEntity.ok(clauses);
+        List<ClauseDTO> clauseDTOs = clauses.stream()
+                .map(ClauseDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Result.success(clauseDTOs));
     }
 
     /**
@@ -76,8 +88,11 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      * @return 所有条款分类的响应实体
      */
     @Override
-    public ResponseEntity<Object> getAllCategories() {
+    public ResponseEntity<Result<Object>> getAllCategories() {
         List<ClauseCategory> categories = Arrays.asList(ClauseCategory.values());
-        return ResponseEntity.ok(categories);
+        List<String> categoryNames = categories.stream()
+                .map(Enum::name)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(Result.success(categoryNames));
     }
 }

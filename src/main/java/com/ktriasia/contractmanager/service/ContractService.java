@@ -1,6 +1,7 @@
 package com.ktriasia.contractmanager.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.pojo.Contract;
 import com.ktriasia.contractmanager.model.pojo.ContractElement;
 import org.springframework.http.ResponseEntity;
@@ -21,26 +22,26 @@ public interface ContractService extends IService<Contract> {
      * @param contract 合同对象
      * @return 包含创建的合同信息的响应实体
      */
-    ResponseEntity<Object> createContract(Contract contract);
+    ResponseEntity<Result<Object>> createContract(Contract contract);
 
     /**
      * 删除合同
      * @param contractId 合同ID
      * @return 删除结果的响应实体
      */
-    ResponseEntity<Object> deleteContract(Integer contractId);
+    ResponseEntity<Result<Object>> deleteContract(Integer contractId);
 
     /**
      * 获取合同的所有元素
      * @param contractId 合同ID
      * @return 包含合同所有元素的响应实体
      */
-    ResponseEntity<Object> getContractElements(Integer contractId);
+    ResponseEntity<Result<Object>> getContractElements(Integer contractId);
 
     /**
      * 获取合同的所有条款元素
      * @param contractId 合同ID
      * @return 包含合同所有条款元素的响应实体
      */
-    ResponseEntity<Object> getContractClauseElements(Integer contractId);
+    ResponseEntity<Result<Object>> getContractClauseElements(Integer contractId);
 }

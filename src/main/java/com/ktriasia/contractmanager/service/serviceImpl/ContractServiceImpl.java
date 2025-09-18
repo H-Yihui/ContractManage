@@ -2,6 +2,9 @@ package com.ktriasia.contractmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ktriasia.contractmanager.model.dto.ContractDTO;
+import com.ktriasia.contractmanager.model.dto.ContractElementDTO;
+import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.enums.ElementType;
 import com.ktriasia.contractmanager.model.mapper.ContractMapper;
 import com.ktriasia.contractmanager.model.mapper.ContractElementMapper;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 合同的服务层
@@ -34,7 +38,7 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
      * @return 包含创建的合同信息的响应实体
      */
     @Override
-    public ResponseEntity<Object> createContract(Contract contract) {
+    public ResponseEntity<Result<Object>> createContract(Contract contract) {
         // 设置创建时间和更新时间
         LocalDateTime now = LocalDateTime.now();
         contract.setCreatedAt(now);
@@ -43,8 +47,9 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         // 保存合同到数据库
         contractMapper.insert(contract);
 
-        // 返回创建的合同信息
-        return ResponseEntity.ok(contract);
+        // 转换为DTO并返回创建的合同信息
+        ContractDTO contractDTO = ContractDTO.fromEntity(contract);
+        return ResponseEntity.ok(Result.created(contractDTO));
     }
 
     /**
@@ -53,18 +58,18 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
      * @return 删除结果的响应实体
      */
     @Override
-    public ResponseEntity<Object> deleteContract(Integer contractId) {
+    public ResponseEntity<Result<Object>> deleteContract(Integer contractId) {
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(Result.notFound("合同不存在"));
         }
 
         // 删除合同
         contractMapper.deleteById(contractId);
 
         // 返回成功响应
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Result.success("合同删除成功", null));
     }
 
     /**
@@ -73,11 +78,11 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
      * @return 包含合同所有元素的响应实体
      */
     @Override
-    public ResponseEntity<Object> getContractElements(Integer contractId) {
+    public ResponseEntity<Result<Object>> getContractElements(Integer contractId) {
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(Result.notFound("合同不存在"));
         }
 
         // 查询合同的所有元素
@@ -85,8 +90,13 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         queryWrapper.eq("contract_id", contractId);
         List<ContractElement> elements = contractElementMapper.selectList(queryWrapper);
 
+        // 转换为DTO
+        List<ContractElementDTO> elementDTOs = elements.stream()
+                .map(ContractElementDTO::fromEntity)
+                .collect(Collectors.toList());
+
         // 返回元素列表
-        return ResponseEntity.ok(elements);
+        return ResponseEntity.ok(Result.success(elementDTOs));
     }
 
     /**
@@ -95,11 +105,11 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
      * @return 包含合同所有条款元素的响应实体
      */
     @Override
-    public ResponseEntity<Object> getContractClauseElements(Integer contractId) {
+    public ResponseEntity<Result<Object>> getContractClauseElements(Integer contractId) {
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(Result.notFound("合同不存在"));
         }
 
         // 查询合同的所有条款元素
@@ -108,7 +118,12 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         queryWrapper.eq("element_type", ElementType.CLAUSE);
         List<ContractElement> clauseElements = contractElementMapper.selectList(queryWrapper);
 
+        // 转换为DTO
+        List<ContractElementDTO> clauseElementDTOs = clauseElements.stream()
+                .map(ContractElementDTO::fromEntity)
+                .collect(Collectors.toList());
+
         // 返回条款元素列表
-        return ResponseEntity.ok(clauseElements);
+        return ResponseEntity.ok(Result.success(clauseElementDTOs));
     }
 }

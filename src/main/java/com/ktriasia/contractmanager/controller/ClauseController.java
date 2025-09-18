@@ -1,10 +1,12 @@
 package com.ktriasia.contractmanager.controller;
 
+import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import com.ktriasia.contractmanager.service.ClauseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +21,7 @@ import java.util.List;
  * @since 2025-09-18
  */
 @Controller
+@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("api/clauses")
 public class ClauseController {
@@ -30,7 +33,7 @@ public class ClauseController {
      * @return 所有条款的响应实体
      */
     @GetMapping
-    public ResponseEntity<Object> getAllClauses(){
+    public ResponseEntity<Result<Object>> getAllClauses(){
         return clauseService.getAllClauses();
     }
 
@@ -40,7 +43,7 @@ public class ClauseController {
      * @return 匹配条款的响应实体
      */
     @GetMapping(params = {"title"})
-    public ResponseEntity<Object> getClausesByTitle(@RequestParam("title") String title){
+    public ResponseEntity<Result<Object>> getClausesByTitle(@RequestParam("title") String title){
         return clauseService.getClausesByTitle(title);
     }
 
@@ -50,7 +53,7 @@ public class ClauseController {
      * @return 匹配条款的响应实体
      */
     @GetMapping(params = {"category"})
-    public ResponseEntity<Object> getClausesByCategory(@RequestParam("category") String category){
+    public ResponseEntity<Result<Object>> getClausesByCategory(@RequestParam("category") String category){
         return clauseService.getClausesByCategory(category);
     }
 
@@ -59,7 +62,7 @@ public class ClauseController {
      * @return 所有条款分类的响应实体
      */
     @GetMapping("categories")
-    public ResponseEntity<Object> getAllCategories(){
+    public ResponseEntity<Result<Object>> getAllCategories(){
         return clauseService.getAllCategories();
     }
 
