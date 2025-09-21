@@ -1,6 +1,7 @@
 package com.ktriasia.contractmanager.model.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class Contract implements Serializable {
     LocalDateTime createdAt;
     /** 合同最后更新时间 */
     LocalDateTime updatedAt;
-    /** 合同元素列表 */
+    /** 合同元素列表（不持久化到数据库） */
+    @TableField(exist = false)
     List<ContractElement> contractElements;
 }

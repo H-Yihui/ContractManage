@@ -123,4 +123,27 @@ public enum ElementType {
             default: return "未知元素类型";
         }
     }
+
+    /**
+     * 根据原始字符串解析元素类型，兼容常见别名与大小写。
+     * 例如："HEADER" -> HEADER_1；其余值按与枚举同名规则解析。
+     * @param raw 原始字符串（大小写不敏感）
+     * @return 对应的 ElementType
+     * @throws IllegalArgumentException 当无法解析为合法枚举时抛出
+     */
+    public static ElementType fromString(String raw) {
+        if (raw == null) return null;
+        String key = raw.trim().toUpperCase();
+        switch (key) {
+            case "HEADER":
+            case "HEADER_1":
+                return ElementType.HEADER_1;
+            case "HEADER_2":
+                return ElementType.HEADER_2;
+            case "HEADER_3":
+                return ElementType.HEADER_3;
+            default:
+                return ElementType.valueOf(key);
+        }
+    }
 }

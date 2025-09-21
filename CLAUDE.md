@@ -8,6 +8,8 @@ This is a Contract Management System backend developed using Java and the Spring
 
 The application follows a standard Spring Boot project structure, with code organized into packages for configuration, controllers, models (POJOs), mappers, and services.
 
+For detailed information about the database schema and table structures, please refer to the DataModel.md file located in the project root. When working with entity classes or database-related code, always consult DataModel.md to ensure alignment with the actual database structure.
+
 ## Key Technologies
 
 * **Backend Framework:** Spring Boot 3.5.5
@@ -52,6 +54,8 @@ Core data models include:
 
 These models are mapped to database tables using MyBatis Plus annotations.
 
+For detailed information about the database schema and table structures, please refer to the DataModel.md file located in the project root. When implementing or modifying entity classes, always consult DataModel.md to ensure alignment with the actual database structure. Pay special attention to field types, constraints, and relationships between tables.
+
 ## DTO Models
 
 * `Result<T>` - Unified response wrapper with code, message, and data fields
@@ -86,13 +90,13 @@ To create a distributable WAR package:
 ## Development Conventions
 
 * **Package Structure:** Code is organized by feature/layer in packages under `com.ktriasia.contractmanager`
-* **Data Objects (Entities):** Plain Old Java Objects (POJOs) are used for data modeling, with Lombok's `@Data` annotation to reduce boilerplate code
+* **Data Objects (Entities):** Plain Old Java Objects (POJOs) are used for data modeling, with Lombok's `@Data` annotation to reduce boilerplate code. For detailed information about entity fields and database mappings, refer to DataModel.md.
 * **Data Access Layer (Mappers):** Mapper interfaces for data access are located in the `com.ktriasia.contractmanager.model.mapper` package
 * **Service Layer:** Service implementations extend MyBatis Plus `ServiceImpl` and implement custom service interfaces
 * **REST Controllers:** All controllers use `@CrossOrigin` annotation to enable CORS support
 * **API Response Format:** All API responses follow the standardized `Result<T>` format with code, message, and data fields
 * **Configuration:** Application configuration is managed in `src/main/resources/application.yaml`
-* **Database:** A MySQL database is expected with connection details configured in `application.yaml`
+* **Database:** A MySQL database is expected with connection details configured in `application.yaml`. For detailed schema information, refer to DataModel.md.
 * **Testing:** Comprehensive unit tests using JUnit 5, Mockito, and MockMvc for all controller methods
 
 ## API Response Format

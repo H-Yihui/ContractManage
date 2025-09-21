@@ -44,4 +44,12 @@ public interface ContractService extends IService<Contract> {
      * @return 包含合同所有条款元素的响应实体
      */
     ResponseEntity<Result<Object>> getContractClauseElements(Integer contractId);
+
+    /**
+     * 从模板创建合同
+     * @param templateId 模板ID
+     * @param contractDetails 合同详细信息
+     * @return 包含新创建的合同及其所有元素的响应实体
+     */
+    ResponseEntity<Result<Object>> createContractFromTemplate(Integer templateId, Contract contractDetails);
 }

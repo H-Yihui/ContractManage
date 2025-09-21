@@ -6,14 +6,13 @@ import com.ktriasia.contractmanager.model.dto.ContractDTO;
 import com.ktriasia.contractmanager.model.dto.ContractElementDTO;
 import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.enums.ElementType;
-import com.ktriasia.contractmanager.model.mapper.ContractMapper;
-import com.ktriasia.contractmanager.model.mapper.ContractElementMapper;
-import com.ktriasia.contractmanager.model.pojo.Contract;
-import com.ktriasia.contractmanager.model.pojo.ContractElement;
+import com.ktriasia.contractmanager.model.mapper.*;
+import com.ktriasia.contractmanager.model.pojo.*;
 import com.ktriasia.contractmanager.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +30,8 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
 
     private final ContractMapper contractMapper;
     private final ContractElementMapper contractElementMapper;
+    private final TemplateElementConfigMapper templateElementConfigMapper;
+    private final ClauseMapper clauseMapper;
 
     /**
      * 创建合同
@@ -65,11 +66,16 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
             return ResponseEntity.ok(Result.notFound("合同不存在"));
         }
 
+        // 删除与该合同关联的所有合同元素
+        QueryWrapper<ContractElement> elementQueryWrapper = new QueryWrapper<>();
+        elementQueryWrapper.eq("contract_id", contractId);
+        contractElementMapper.delete(elementQueryWrapper);
+
         // 删除合同
         contractMapper.deleteById(contractId);
 
         // 返回成功响应
-        return ResponseEntity.ok(Result.success("合同删除成功", null));
+        return ResponseEntity.ok(Result.success("合同及关联元素删除成功", null));
     }
 
     /**
@@ -125,5 +131,71 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
 
         // 返回条款元素列表
         return ResponseEntity.ok(Result.success(clauseElementDTOs));
+    }
+
+    /**
+     * 从模板创建合同
+     * @param templateId 模板ID
+     * @param contractDetails 合同详细信息
+     * @return 包含新创建的合同及其所有元素的响应实体
+     */
+    @Override
+    @Transactional
+    public ResponseEntity<Result<Object>> createContractFromTemplate(Integer templateId, Contract contractDetails) {
+        // 检查模板是否存在
+        QueryWrapper<TemplateElementConfig> templateQueryWrapper = new QueryWrapper<>();
+        templateQueryWrapper.eq("template_id", templateId);
+        List<TemplateElementConfig> templateConfigs = templateElementConfigMapper.selectList(templateQueryWrapper);
+
+        if (templateConfigs.isEmpty()) {
+            return ResponseEntity.ok(Result.notFound("模板不存在或模板配置为空"));
+        }
+
+        // 创建新合同
+        LocalDateTime now = LocalDateTime.now();
+        contractDetails.setCreatedAt(now);
+        contractDetails.setUpdatedAt(now);
+        contractMapper.insert(contractDetails);
+        Integer newContractId = contractDetails.getContractId();
+
+        // 按order_index排序模板配置
+        templateConfigs.sort((c1, c2) -> c1.getOrderIndex().compareTo(c2.getOrderIndex()));
+
+        // 创建合同元素列表
+        List<ContractElement> contractElements = templateConfigs.stream().map(config -> {
+            ContractElement element = new ContractElement();
+            element.setContractId(newContractId);
+            // 使用枚举内的静态工厂方法做字符串到枚举的解耦映射
+            ElementType type = ElementType.fromString(config.getElementType());
+            element.setElementType(type);
+            element.setSourceClauseId(config.getSourceClauseId());
+            element.setAttributes(config.getDefaultAttributes());
+
+            // 根据内容来源设置内容
+            if ("STATIC".equals(config.getContentSource())) {
+                element.setContent(config.getStaticContent());
+            } else if ("CLAUSE_LIBRARY".equals(config.getContentSource()) && config.getSourceClauseId() != null) {
+                // 从条款库获取内容
+                Clause clause = clauseMapper.selectById(config.getSourceClauseId());
+                if (clause != null) {
+                    element.setContent(clause.getContent());
+                }
+            }
+
+            return element;
+        }).collect(Collectors.toList());
+
+        // 批量保存合同元素（顺序插入以保序）
+        if (!contractElements.isEmpty()) {
+            for (ContractElement element : contractElements) {
+                contractElementMapper.insert(element);
+            }
+        }
+
+        // 获取完整的合同信息（包含所有元素）
+        ResponseEntity<Result<Object>> result = getContractElements(newContractId);
+
+        // 返回新创建的合同及其所有元素
+        return ResponseEntity.ok(Result.success("从模板创建合同成功", result.getBody().getData()));
     }
 }

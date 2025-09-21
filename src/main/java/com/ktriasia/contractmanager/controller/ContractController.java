@@ -68,4 +68,18 @@ public class ContractController {
         return contractService.getContractClauseElements(contractId);
     }
 
+    /**
+     * 从模板创建合同
+     * @param templateId 模板ID
+     * @param contractDetails 合同详细信息
+     * @return 包含新创建的合同及其所有元素的响应实体
+     */
+    @PostMapping("/from-template/{templateId}")
+    public ResponseEntity<Result<Object>> createContractFromTemplate(
+            @PathVariable Integer templateId,
+            @RequestBody Contract contractDetails
+    ) {
+        return contractService.createContractFromTemplate(templateId, contractDetails);
+    }
+
 }
