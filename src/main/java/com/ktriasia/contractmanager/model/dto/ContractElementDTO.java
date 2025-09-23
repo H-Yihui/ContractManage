@@ -1,6 +1,5 @@
 package com.ktriasia.contractmanager.model.dto;
 
-import com.ktriasia.contractmanager.model.enums.ElementType;
 import lombok.Data;
 
 /**
@@ -26,6 +25,7 @@ public class ContractElementDTO {
     private String content;
     private String attributes;
     private Integer sourceClauseId;
+    private Integer orderIndex;
 
     public static ContractElementDTO fromEntity(com.ktriasia.contractmanager.model.pojo.ContractElement element) {
         ContractElementDTO dto = new ContractElementDTO();
@@ -37,6 +37,7 @@ public class ContractElementDTO {
         dto.content = element.getContent();
         dto.attributes = element.getAttributes();
         dto.sourceClauseId = element.getSourceClauseId();
+        dto.orderIndex = element.getOrderIndex();
         return dto;
     }
 }

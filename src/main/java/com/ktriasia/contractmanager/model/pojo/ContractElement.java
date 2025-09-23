@@ -3,6 +3,7 @@ package com.ktriasia.contractmanager.model.pojo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.ktriasia.contractmanager.model.enums.ElementType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ import lombok.Data;
  * @version 2.0.0
  */
 @Data
+@TableName("contract_element")
 public class ContractElement {
     /** 元素唯一标识 */
     @TableId(type= IdType.AUTO)
@@ -54,6 +56,9 @@ public class ContractElement {
 
     /** 来源条款ID(如果适用) */
     private Integer sourceClauseId;
+
+    /** 元素在合同中的显示顺序，数值越小位置越靠前 */
+    private Integer orderIndex;
 
     /** 关联的条款对象(不持久化到数据库) */
     @TableField(exist = false)

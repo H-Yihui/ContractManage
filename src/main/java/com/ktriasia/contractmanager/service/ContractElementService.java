@@ -1,10 +1,8 @@
 package com.ktriasia.contractmanager.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.ktriasia.contractmanager.model.dto.Result;
 import com.ktriasia.contractmanager.model.pojo.ContractElement;
+import com.ktriasia.contractmanager.model.result.Result;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -14,8 +12,7 @@ import java.util.List;
  * @version 1.0.0
  * @since 2025-09-18
  */
-@Service
-public interface ContractElementService extends IService<ContractElement> {
+public interface ContractElementService {
     /**
      * 获取合同元素
      * @param elementId 元素ID

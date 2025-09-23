@@ -1,6 +1,7 @@
 package com.ktriasia.contractmanager.controller;
 
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.dto.ClauseDTO;
+import com.ktriasia.contractmanager.model.result.Result;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import com.ktriasia.contractmanager.service.ClauseService;
 import lombok.RequiredArgsConstructor;

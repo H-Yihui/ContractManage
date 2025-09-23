@@ -1,6 +1,8 @@
 package com.ktriasia.contractmanager.controller;
 
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.dto.ContractDTO;
+import com.ktriasia.contractmanager.model.dto.CreateContractFromTemplateDTO;
+import com.ktriasia.contractmanager.model.result.Result;
 import com.ktriasia.contractmanager.model.pojo.Contract;
 import com.ktriasia.contractmanager.service.ContractService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 合同的控制层，提供创建合同、删除合同、获取合同的所有元素以及获取合同的所有条款元素的功能
+ *
  * @author ktriasia
  * @version 1.0.1
  * @since 2025-09-18
@@ -30,6 +33,7 @@ public class ContractController {
 
     /**
      * 创建合同
+     *
      * @param contract 合同对象
      * @return 包含创建的合同信息的响应实体
      */
@@ -40,6 +44,7 @@ public class ContractController {
 
     /**
      * 删除合同
+     *
      * @param contractId 合同ID
      * @return 删除结果的响应实体
      */
@@ -50,6 +55,7 @@ public class ContractController {
 
     /**
      * 获取合同的所有元素
+     *
      * @param contractId 合同ID
      * @return 包含合同所有元素的响应实体
      */
@@ -60,6 +66,7 @@ public class ContractController {
 
     /**
      * 获取合同的所有条款元素
+     *
      * @param contractId 合同ID
      * @return 包含合同所有条款元素的响应实体
      */
@@ -70,15 +77,20 @@ public class ContractController {
 
     /**
      * 从模板创建合同
+     *
      * @param templateId 模板ID
-     * @param contractDetails 合同详细信息
+     * @param createRequest 创建合同的请求DTO
      * @return 包含新创建的合同及其所有元素的响应实体
      */
     @PostMapping("/from-template/{templateId}")
     public ResponseEntity<Result<Object>> createContractFromTemplate(
             @PathVariable Integer templateId,
-            @RequestBody Contract contractDetails
+            @RequestBody CreateContractFromTemplateDTO createRequest
     ) {
+        // 构建Contract对象
+        Contract contractDetails = new Contract();
+        contractDetails.setContractName(createRequest.getContractName());
+
         return contractService.createContractFromTemplate(templateId, contractDetails);
     }
 

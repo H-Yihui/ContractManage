@@ -2,8 +2,10 @@ package com.ktriasia.contractmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ktriasia.contractmanager.exception.ServiceException;
 import com.ktriasia.contractmanager.model.dto.ContractElementDTO;
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.result.Result;
+import com.ktriasia.contractmanager.model.result.ResponseCode;
 import com.ktriasia.contractmanager.model.mapper.ContractElementMapper;
 import com.ktriasia.contractmanager.model.pojo.ContractElement;
 import com.ktriasia.contractmanager.service.ContractElementService;
@@ -11,15 +13,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * 合同元素的服务层实现类
  * @author ktriasia
- * @version 1.0.0
- * @since 2025-09-18
+ * @version 2.1.0
+ * @since 2025-09-23
  */
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class ContractElementServiceImpl extends ServiceImpl<ContractElementMappe
 
         // 检查元素是否存在
         if (element == null) {
-            return ResponseEntity.ok(Result.notFound("合同元素不存在"));
+            throw new ServiceException(ResponseCode.ELEMENT_NOT_FOUND, "合同元素ID为 " + elementId + " 的元素不存在");
         }
 
         // 转换为DTO并返回元素信息
@@ -78,7 +79,7 @@ public class ContractElementServiceImpl extends ServiceImpl<ContractElementMappe
         // 保存合同元素到数据库
         contractElementMapper.insert(contractElement);
 
-        // 转换为DTO并返回创建的合同元素信息
+        // 转换为DTO并返回创建的元素信息
         ContractElementDTO elementDTO = ContractElementDTO.fromEntity(contractElement);
         return ResponseEntity.ok(Result.created(elementDTO));
     }
@@ -91,23 +92,18 @@ public class ContractElementServiceImpl extends ServiceImpl<ContractElementMappe
      */
     @Override
     public ResponseEntity<Result<Object>> updateContractElement(Integer elementId, ContractElement contractElement) {
-        // 检查合同元素是否存在
+        // 检查元素是否存在
         ContractElement existingElement = contractElementMapper.selectById(elementId);
         if (existingElement == null) {
-            return ResponseEntity.ok(Result.notFound("合同元素不存在"));
+            throw new ServiceException(ResponseCode.ELEMENT_NOT_FOUND, "合同元素ID为 " + elementId + " 的元素不存在");
         }
 
-        // 设置要更新的字段
-        existingElement.setElementType(contractElement.getElementType());
-        existingElement.setContent(contractElement.getContent());
-        existingElement.setAttributes(contractElement.getAttributes());
-        existingElement.setSourceClauseId(contractElement.getSourceClauseId());
+        // 更新元素信息
+        contractElement.setElementId(elementId);
+        contractElementMapper.updateById(contractElement);
 
-        // 更新合同元素
-        contractElementMapper.updateById(existingElement);
-
-        // 转换为DTO并返回更新的合同元素信息
-        ContractElementDTO elementDTO = ContractElementDTO.fromEntity(existingElement);
+        // 转换为DTO并返回更新的元素信息
+        ContractElementDTO elementDTO = ContractElementDTO.fromEntity(contractElement);
         return ResponseEntity.ok(Result.success("合同元素更新成功", elementDTO));
     }
 
@@ -118,13 +114,13 @@ public class ContractElementServiceImpl extends ServiceImpl<ContractElementMappe
      */
     @Override
     public ResponseEntity<Result<Object>> deleteContractElement(Integer elementId) {
-        // 检查合同元素是否存在
+        // 检查元素是否存在
         ContractElement existingElement = contractElementMapper.selectById(elementId);
         if (existingElement == null) {
-            return ResponseEntity.ok(Result.notFound("合同元素不存在"));
+            throw new ServiceException(ResponseCode.ELEMENT_NOT_FOUND, "合同元素ID为 " + elementId + " 的元素不存在");
         }
 
-        // 删除合同元素
+        // 删除元素
         contractElementMapper.deleteById(elementId);
 
         // 返回成功响应

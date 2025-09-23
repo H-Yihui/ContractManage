@@ -101,49 +101,36 @@ public enum ElementType {
     }
 
     /**
-     * 获取元素类型的描述信息
-     * @return 元素类型的详细描述
-     */
-    public String getDescription() {
-        switch (this) {
-            case CLAUSE: return "合同条款，构成合同主体的法律条文";
-            case HEADER_1: return "一级标题，用于主要章节标题";
-            case HEADER_2: return "二级标题，用于子章节标题";
-            case HEADER_3: return "三级标题，用于小节标题";
-            case PARAGRAPH: return "文本段落，普通文本内容";
-            case PARTY_INFO: return "当事人信息块，包含甲方或乙方完整信息";
-            case TABLE: return "表格，用于展示结构化数据";
-            case ORDERED_LIST: return "有序列表，带编号的项目列表";
-            case UNORDERED_LIST: return "无序列表，带项目符号的列表";
-            case FILLABLE_FIELD: return "待填写字段，如下划线或输入框";
-            case CHECKBOX: return "复选框，用于选择项";
-            case SIGNATURE: return "签名区域，用于签署姓名";
-            case SEAL: return "印章区域，用于盖章";
-            case IMAGE: return "图片，如公司Logo等图像";
-            default: return "未知元素类型";
-        }
-    }
-
-    /**
-     * 根据原始字符串解析元素类型，兼容常见别名与大小写。
-     * 例如："HEADER" -> HEADER_1；其余值按与枚举同名规则解析。
-     * @param raw 原始字符串（大小写不敏感）
-     * @return 对应的 ElementType
-     * @throws IllegalArgumentException 当无法解析为合法枚举时抛出
+     * 将模板配置中的 elementType 字符串映射为 ElementType 枚举。
+     * 兼容常见别名和大小写（目前按大写处理）。
+     *
+     * @param raw 原始字符串
+     * @return 对应的ElementType枚举，如果无法映射则返回null
      */
     public static ElementType fromString(String raw) {
-        if (raw == null) return null;
+        if (raw == null || raw.trim().isEmpty()) {
+            return null;
+        }
+
         String key = raw.trim().toUpperCase();
+
+        // 处理别名映射
         switch (key) {
             case "HEADER":
             case "HEADER_1":
-                return ElementType.HEADER_1;
+                return HEADER_1;
             case "HEADER_2":
-                return ElementType.HEADER_2;
+                return HEADER_2;
             case "HEADER_3":
-                return ElementType.HEADER_3;
+                return HEADER_3;
             default:
-                return ElementType.valueOf(key);
+                try {
+                    // 其余值直接映射到同名枚举（如 CLAUSE, PARAGRAPH, TABLE...）
+                    return ElementType.valueOf(key);
+                } catch (IllegalArgumentException e) {
+                    // 如果找不到对应的枚举值，返回null
+                    return null;
+                }
         }
     }
 }

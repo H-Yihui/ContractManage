@@ -2,27 +2,27 @@ package com.ktriasia.contractmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ktriasia.contractmanager.exception.ServiceException;
 import com.ktriasia.contractmanager.model.dto.ClauseDTO;
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.result.Result;
+import com.ktriasia.contractmanager.model.result.ResponseCode;
 import com.ktriasia.contractmanager.model.enums.ClauseCategory;
 import com.ktriasia.contractmanager.model.mapper.ClauseMapper;
 import com.ktriasia.contractmanager.model.pojo.Clause;
 import com.ktriasia.contractmanager.service.ClauseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * 条款的服务层
  * @author ktriasia
- * @version 1.0.0
- * @since 2025-09-18
+ * @version 2.1.0
+ * @since 2025-09-23
  */
 @Service
 @RequiredArgsConstructor
@@ -72,6 +72,13 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      */
     @Override
     public ResponseEntity<Result<Object>> getClausesByCategory(String category) {
+        // 验证分类是否有效
+        try {
+            ClauseCategory.valueOf(category);
+        } catch (IllegalArgumentException e) {
+            throw new ServiceException(ResponseCode.CLAUSE_CATEGORY_INVALID, "无效的条款类别: " + category);
+        }
+
         QueryWrapper<Clause> clauseQueryWrapper = new QueryWrapper<>();
         clauseQueryWrapper.eq("clause_category", category);
         List<Clause> clauses = clauseMapper.selectList(clauseQueryWrapper);
@@ -89,10 +96,9 @@ public class ClauseServiceImpl extends ServiceImpl<ClauseMapper,Clause> implemen
      */
     @Override
     public ResponseEntity<Result<Object>> getAllCategories() {
-        List<ClauseCategory> categories = Arrays.asList(ClauseCategory.values());
-        List<String> categoryNames = categories.stream()
+        List<String> categories = Arrays.stream(ClauseCategory.values())
                 .map(Enum::name)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(Result.success(categoryNames));
+        return ResponseEntity.ok(Result.success(categories));
     }
 }

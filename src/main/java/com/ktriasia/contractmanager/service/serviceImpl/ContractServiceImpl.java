@@ -2,13 +2,16 @@ package com.ktriasia.contractmanager.service.serviceImpl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ktriasia.contractmanager.exception.ServiceException;
 import com.ktriasia.contractmanager.model.dto.ContractDTO;
 import com.ktriasia.contractmanager.model.dto.ContractElementDTO;
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.result.Result;
+import com.ktriasia.contractmanager.model.result.ResponseCode;
 import com.ktriasia.contractmanager.model.enums.ElementType;
 import com.ktriasia.contractmanager.model.mapper.*;
 import com.ktriasia.contractmanager.model.pojo.*;
 import com.ktriasia.contractmanager.service.ContractService;
+import com.ktriasia.contractmanager.service.converter.TemplateToContractConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,8 +24,8 @@ import java.util.stream.Collectors;
 /**
  * 合同的服务层
  * @author ktriasia
- * @version 1.0.0
- * @since 2025-09-18
+ * @version 2.1.0
+ * @since 2025-09-23
  */
 @Service
 @RequiredArgsConstructor
@@ -32,6 +35,7 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
     private final ContractElementMapper contractElementMapper;
     private final TemplateElementConfigMapper templateElementConfigMapper;
     private final ClauseMapper clauseMapper;
+    private final TemplateToContractConverter templateToContractConverter;
 
     /**
      * 创建合同
@@ -59,11 +63,12 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
      * @return 删除结果的响应实体
      */
     @Override
+    @Transactional
     public ResponseEntity<Result<Object>> deleteContract(Integer contractId) {
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.ok(Result.notFound("合同不存在"));
+            throw new ServiceException(ResponseCode.CONTRACT_NOT_FOUND, "合同ID为 " + contractId + " 的合同不存在");
         }
 
         // 删除与该合同关联的所有合同元素
@@ -88,7 +93,7 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.ok(Result.notFound("合同不存在"));
+            throw new ServiceException(ResponseCode.CONTRACT_NOT_FOUND, "合同ID为 " + contractId + " 的合同不存在");
         }
 
         // 查询合同的所有元素
@@ -115,7 +120,7 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         // 检查合同是否存在
         Contract existingContract = contractMapper.selectById(contractId);
         if (existingContract == null) {
-            return ResponseEntity.ok(Result.notFound("合同不存在"));
+            throw new ServiceException(ResponseCode.CONTRACT_NOT_FOUND, "合同ID为 " + contractId + " 的合同不存在");
         }
 
         // 查询合同的所有条款元素
@@ -148,54 +153,43 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         List<TemplateElementConfig> templateConfigs = templateElementConfigMapper.selectList(templateQueryWrapper);
 
         if (templateConfigs.isEmpty()) {
-            return ResponseEntity.ok(Result.notFound("模板不存在或模板配置为空"));
+            throw new ServiceException(ResponseCode.CONTRACT_TEMPLATE_NOT_FOUND, "模板ID为 " + templateId + " 的模板不存在或配置为空");
         }
 
-        // 创建新合同
+        // 设置创建时间和更新时间
         LocalDateTime now = LocalDateTime.now();
         contractDetails.setCreatedAt(now);
         contractDetails.setUpdatedAt(now);
+
+        // 保存合同到数据库
         contractMapper.insert(contractDetails);
-        Integer newContractId = contractDetails.getContractId();
 
-        // 按order_index排序模板配置
-        templateConfigs.sort((c1, c2) -> c1.getOrderIndex().compareTo(c2.getOrderIndex()));
-
-        // 创建合同元素列表
-        List<ContractElement> contractElements = templateConfigs.stream().map(config -> {
+        // 根据模板配置创建合同元素
+        for (TemplateElementConfig config : templateConfigs) {
             ContractElement element = new ContractElement();
-            element.setContractId(newContractId);
-            // 使用枚举内的静态工厂方法做字符串到枚举的解耦映射
-            ElementType type = ElementType.fromString(config.getElementType());
-            element.setElementType(type);
-            element.setSourceClauseId(config.getSourceClauseId());
-            element.setAttributes(config.getDefaultAttributes());
+            element.setContractId(contractDetails.getContractId());
+            element.setElementType(ElementType.fromString(config.getElementType()));
+            element.setOrderIndex(config.getOrderIndex());
 
             // 根据内容来源设置内容
             if ("STATIC".equals(config.getContentSource())) {
                 element.setContent(config.getStaticContent());
+                element.setAttributes(config.getDefaultAttributes());
             } else if ("CLAUSE_LIBRARY".equals(config.getContentSource()) && config.getSourceClauseId() != null) {
-                // 从条款库获取内容
                 Clause clause = clauseMapper.selectById(config.getSourceClauseId());
                 if (clause != null) {
                     element.setContent(clause.getContent());
+                    element.setSourceClauseId(clause.getClauseId());
                 }
             }
 
-            return element;
-        }).collect(Collectors.toList());
-
-        // 批量保存合同元素（顺序插入以保序）
-        if (!contractElements.isEmpty()) {
-            for (ContractElement element : contractElements) {
-                contractElementMapper.insert(element);
-            }
+            contractElementMapper.insert(element);
         }
 
-        // 获取完整的合同信息（包含所有元素）
-        ResponseEntity<Result<Object>> result = getContractElements(newContractId);
+        // 获取创建的合同及其所有元素
+        ResponseEntity<Result<Object>> contractElementsResponse = getContractElements(contractDetails.getContractId());
+        Result<Object> elementsResult = contractElementsResponse.getBody();
 
-        // 返回新创建的合同及其所有元素
-        return ResponseEntity.ok(Result.success("从模板创建合同成功", result.getBody().getData()));
+        return ResponseEntity.ok(Result.success("从模板创建合同成功", elementsResult.getData()));
     }
 }

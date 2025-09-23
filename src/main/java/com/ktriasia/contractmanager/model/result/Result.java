@@ -1,4 +1,4 @@
-package com.ktriasia.contractmanager.model.dto;
+package com.ktriasia.contractmanager.model.result;
 
 import lombok.Data;
 
@@ -23,6 +23,12 @@ public class Result<T> {
 
     public Result() {}
 
+    /**
+     * 构造函数
+     * @param code Http状态码
+     * @param message 描述信息
+     * @param data 返回数据
+     */
     public Result(Integer code, String message, T data) {
         this.code = code;
         this.message = message;

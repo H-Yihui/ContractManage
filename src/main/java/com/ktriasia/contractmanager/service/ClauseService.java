@@ -1,13 +1,10 @@
 package com.ktriasia.contractmanager.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.ktriasia.contractmanager.model.dto.Result;
-import com.ktriasia.contractmanager.model.enums.ClauseCategory;
+import com.ktriasia.contractmanager.model.result.Result;
 import com.ktriasia.contractmanager.model.pojo.Clause;
+import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 条款的服务层，提供获取所有条款、根据标题获取条款、根据分类获取条款以及获取所有条款分类的业务逻辑

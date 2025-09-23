@@ -112,4 +112,31 @@ public enum ClauseCategory {
     COUNTERPARTS,
     /** 其他条款 */
     OTHERS;
+
+    /**
+     * 从字符串值安全地获取枚举常量，支持常见的拼写错误和别名
+     * @param value 字符串值
+     * @return 对应的枚举常量，如果找不到则返回null
+     */
+    public static ClauseCategory fromValue(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedValue = value.trim().toUpperCase();
+
+        // 处理常见的拼写错误
+        switch (normalizedValue) {
+            case "FORCE_MAJEJEURE": // 修复数据库中的拼写错误
+                return FORCE_MAJEURE;
+            default:
+                try {
+                    return valueOf(normalizedValue);
+                } catch (IllegalArgumentException e) {
+                    // 日志记录未知的枚举值
+                    System.err.println("Unknown ClauseCategory value: " + value);
+                    return null;
+                }
+        }
+    }
 }

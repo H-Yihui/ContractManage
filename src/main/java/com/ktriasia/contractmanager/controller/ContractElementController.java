@@ -1,6 +1,7 @@
 package com.ktriasia.contractmanager.controller;
 
-import com.ktriasia.contractmanager.model.dto.Result;
+import com.ktriasia.contractmanager.model.dto.ContractElementDTO;
+import com.ktriasia.contractmanager.model.result.Result;
 import com.ktriasia.contractmanager.model.pojo.ContractElement;
 import com.ktriasia.contractmanager.service.ContractElementService;
 import lombok.RequiredArgsConstructor;
